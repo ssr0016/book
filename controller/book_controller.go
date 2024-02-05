@@ -24,6 +24,10 @@ func (c *BookController) Create(w http.ResponseWriter, r *http.Request, p httpro
 	bookCreateRequest := request.BookCreateRequest{}
 	helper.ReadRequestBody(w, r, &bookCreateRequest)
 
+	if err := bookCreateRequest.Validate(); err != nil {
+		helper.WriteResponseBody(w, err.Error())
+	}
+
 	err := c.BookService.Create(r.Context(), bookCreateRequest)
 	if err != nil {
 		helper.WriteResponseBody(w, err.Error())
@@ -63,6 +67,10 @@ func (c *BookController) Update(w http.ResponseWriter, r *http.Request, p httpro
 	bookID := p.ByName("bookID")
 	id, err := strconv.Atoi(bookID)
 	if err != nil {
+		helper.WriteResponseBody(w, err.Error())
+	}
+
+	if err := bookUpdateRequest.Validate(); err != nil {
 		helper.WriteResponseBody(w, err.Error())
 	}
 
