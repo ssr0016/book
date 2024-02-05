@@ -22,7 +22,7 @@ func NewBookController(bookService service.BookService) *BookController {
 
 func (c *BookController) Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	bookCreateRequest := request.BookCreateRequest{}
-	helper.ReadRequestBody(r, &bookCreateRequest)
+	helper.ReadRequestBody(w, r, &bookCreateRequest)
 
 	err := c.BookService.Create(r.Context(), bookCreateRequest)
 	if err != nil {
@@ -58,7 +58,7 @@ func (c *BookController) Search(w http.ResponseWriter, r *http.Request, p httpro
 
 func (c *BookController) Update(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	bookUpdateRequest := request.BookUpdateRequest{}
-	helper.ReadRequestBody(r, &bookUpdateRequest)
+	helper.ReadRequestBody(w, r, &bookUpdateRequest)
 
 	bookID := p.ByName("bookID")
 	id, err := strconv.Atoi(bookID)
