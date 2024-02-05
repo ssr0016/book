@@ -12,4 +12,6 @@ type BookRepository interface {
 	Delete(ctx context.Context, bookID int64) error
 	FindByID(ctx context.Context, bookID int64) (model.Book, error)
 	FindAll(ctx context.Context) ([]model.Book, error)
+
+	BookTaken(ctx context.Context, id int64, title string) ([]model.Book, error)
 }

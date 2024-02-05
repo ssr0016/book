@@ -21,14 +21,22 @@ func NewBookRepositoryImpl(bookRepository repository.BookRepository) BookService
 }
 
 func (n *BookServiceImpl) Create(ctx context.Context, req request.BookCreateRequest) error {
-	book := model.Book{
+
+	result, err := n.BookRepository.BookTaken(ctx, 0, req.Title)
+	if err != nil {
+		return err
+	}
+
+	if len(result) > 0 {
+		return response.ErrBookNameAlreadyTaken
+	}
+
+	err = n.BookRepository.Save(ctx, model.Book{
 		Title:       req.Title,
 		Description: req.Description,
 		Author:      req.Author,
 		PublishedAt: time.Now().UTC().Format(time.RFC3339Nano),
-	}
-
-	err := n.BookRepository.Save(ctx, book)
+	})
 	if err != nil {
 		return err
 	}
@@ -75,12 +83,13 @@ func (n *BookServiceImpl) Search(ctx context.Context) ([]response.BookResponse, 
 }
 
 func (n *BookServiceImpl) Update(ctx context.Context, req request.BookUpdateRequest) error {
-	result, err := n.BookRepository.FindByID(ctx, req.ID)
+
+	result, err := n.BookRepository.BookTaken(ctx, req.ID, req.Title)
 	if err != nil {
 		return err
 	}
 
-	if result.ID == 0 {
+	if len(result) > 1 || (len(result) == 1 && result[0].ID != req.ID) {
 		return response.ErrBookNotFound
 	}
 

@@ -154,3 +154,33 @@ func (n *BookRepositoryImple) Delete(ctx context.Context, bookID int64) error {
 
 	return nil
 }
+
+func (n *BookRepositoryImple) BookTaken(ctx context.Context, id int64, title string) ([]model.Book, error) {
+	var result []model.Book
+
+	rawSQL := `
+		SELECT
+			id, title, description, author, published_at
+		FROM
+			books
+		WHERE
+			id = $1 OR
+			title = $2
+	`
+
+	rows, err := n.Db.QueryContext(ctx, rawSQL, id, title)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		book := model.Book{}
+		err := rows.Scan(&book.ID, &book.Title, &book.Description, &book.Author, &book.PublishedAt)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, book)
+	}
+
+	return result, nil
+}
